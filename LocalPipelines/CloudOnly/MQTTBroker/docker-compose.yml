@@ -1,0 +1,114 @@
+version: "3"
+services:
+ mqtt:
+      image: toke/mosquitto
+      networks:
+        - pipeline
+      container_name: mqtt
+      expose:
+        - 1883
+      ports:
+        - 1883:1883
+      restart: unless-stopped
+
+ 
+ redis:
+      image: redis
+      container_name: redis
+      networks:
+        - pipeline
+      ports:
+        - 6379:6379
+
+
+
+# redispublisher:
+#       image: redispublisher
+#       build: ../MQTTImageClassify/RedisPublisherTest
+#       links:
+#         - redis
+
+   #image classify subscriber
+
+ imageclassify-subscriber:
+      build: ../MQTTImageClassify
+      image: mqttimageclassify
+
+      environment:
+        - DISPLAY=unix$DISPLAY
+
+      volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+
+      networks:
+        - pipeline
+      depends_on:
+        - mqtt #ook eens testen zonder
+      links:
+        - redis
+
+ plotly:
+      image: plotlyvisualisation
+      build: ../MQTTImageClassify/PlotlyVisualisation
+      ports:
+        - 8050:8050
+
+      networks:
+        - pipeline
+      links:
+        - redis
+        - imageclassify-subscriber
+
+
+#image publisher
+
+ image-publisher:
+      build: ../MQTTImagePublisher
+      image: mqttimagepublisher
+      networks:
+        - pipeline
+      environment:
+        - DISPLAY=unix$DISPLAY
+
+      volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+
+      depends_on:
+        - mqtt #ook eens testen zonder
+        - plotly
+
+
+networks:
+ pipeline:
+  driver: bridge
+
+#first test publisher
+
+
+# data-publisher:
+#      build: ../MQTTPublisher
+#      image: mqtt-publisher
+#      networks:
+#        - pipeline
+#      depends_on:
+#        - mqtt #ook eens testen zonder
+
+
+#first test subscriber
+
+
+# data-subscriber:
+#      build: ../MQTTSubscriber
+#      image: mqtt-subscriber
+#      networks:
+#        - pipeline
+#      depends_on:
+#        - mqtt #ook eens testen zonder
+
+
+#docker inspect <container id>
+
+# data-subscriber:
+#	image: mqtt-subscriber
+
+#depend on op mqtt (wachten op mqtt) testen zonder ook eens

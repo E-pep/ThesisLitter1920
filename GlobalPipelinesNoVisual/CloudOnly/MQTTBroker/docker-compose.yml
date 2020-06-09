@@ -1,0 +1,29 @@
+version: "3"
+services:
+ mqtt:
+      image: toke/mosquitto
+      container_name: mqtt
+      expose:
+        - 1883
+      ports:
+        - 1883:1883
+      restart: unless-stopped
+
+
+#image classify subscriber
+
+ imageclassify-subscriber:
+      build: ../subscriber
+      image: cloudonlysubscriberaws
+      depends_on:
+        - mqtt #ook eens testen zonder
+      expose:
+        - 587
+      ports:
+        - 587:587
+
+
+
+
+
+#image on Jetson nano edgeonlymqttimagepublisher

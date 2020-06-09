@@ -1,0 +1,21 @@
+FROM ubuntu:latest
+
+RUN apt-get update && \
+  apt-get install -y software-properties-common && \
+  add-apt-repository ppa:jonathonf/python-3.6
+RUN apt-get update
+
+RUN apt-get install -y build-essential python3.6 python3.6-dev python3-pip python3.6-venv
+RUN apt-get install -y git
+
+# update pip
+RUN python3.6 -m pip install pip --upgrade
+RUN python3.6 -m pip install wheel
+
+ENTRYPOINT [ "python3" ]
+
+RUN pip install opencv-python==3.4.8.29
+RUN pip install tf-nightly
+RUN pip install Pillow
+RUN pip install scikit-image
+CMD [ "python3", "./ImageClassify.py"]

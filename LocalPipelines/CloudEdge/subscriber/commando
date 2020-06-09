@@ -1,0 +1,4 @@
+xhost +
+docker build -t imageclassify .
+commando: docker run -e  DISPLAY=unix$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix imageclassify
+

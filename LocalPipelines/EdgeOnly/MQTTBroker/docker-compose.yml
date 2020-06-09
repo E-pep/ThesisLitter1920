@@ -1,0 +1,86 @@
+version: "3"
+services:
+ mqtt:
+      image: toke/mosquitto
+      networks:
+        - pipeline
+      container_name: mqtt
+      expose:
+        - 1883
+      ports:
+        - 1883:1883
+      restart: unless-stopped
+
+#first test publisher
+
+
+# data-publisher:
+#      build: ../MQTTPublisher
+#      image: mqtt-publisher
+#      networks:
+#        - pipeline
+#      depends_on:
+#        - mqtt #ook eens testen zonder
+
+
+#first test subscriber
+
+
+# data-subscriber:
+#      build: ../MQTTSubscriber
+#      image: mqtt-subscriber
+#      networks:
+#        - pipeline
+#      depends_on:
+#        - mqtt #ook eens testen zonder
+
+
+#image classify subscriber
+
+ imageclassify-subscriber:
+      build: ../subscriber
+      image: localedgeonlysubscriber
+
+      environment:
+        - DISPLAY=unix$DISPLAY
+
+      volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+
+      networks:
+        - pipeline
+      depends_on:
+        - mqtt #ook eens testen zonder
+
+      ports:
+        - "8050:8050"
+
+#image publisher
+
+ image-publisher:
+      build: ../publisher
+      image: localedgeonlypublisher
+      networks:
+        - pipeline
+      environment:
+        - DISPLAY=unix$DISPLAY
+
+      volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+
+      depends_on:
+        - mqtt #ook eens testen zonder
+
+
+networks:
+ pipeline:
+  driver: bridge
+
+
+
+#docker inspect <container id>
+
+# data-subscriber:
+#	image: mqtt-subscriber
+
+#depend on op mqtt (wachten op mqtt) testen zonder ook eens
